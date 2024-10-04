@@ -1,36 +1,49 @@
 #include <iostream>
-#include <cmath> // For abs() function
-#include <graphics.h> // For graphics functions
+#include <cmath>  // For abs() function
+#include <graphics.h>  // For graphics functions
+#include <conio.h>  // For getch()
 
 using namespace std;
 
 // DDA line drawing function
-void dda(int x0, int y0, int x1, int y1, int color)
-{
-    int dx = x1 - x0; // Change in x
-    int dy = y1 - y0; // Change in y
-    int steps;        // Number of steps required to draw the line
+void dda(int x0, int y0, int x1, int y1, int color, string style = "solid") {
+    int dx = x1 - x0;  // Change in x
+    int dy = y1 - y0;  // Change in y
+    int steps = (abs(dx) > abs(dy)) ? abs(dx) : abs(dy);  // Calculate the number of steps needed
 
-    // Calculate the number of steps needed
-    steps = (abs(dx) > abs(dy)) ? abs(dx) : abs(dy);
-
-    float xIncrement = static_cast<float>(dx) / steps; // Increment in x
-    float yIncrement = static_cast<float>(dy) / steps; // Increment in y
+    float xIncrement = static_cast<float>(dx) / steps;  // Increment in x
+    float yIncrement = static_cast<float>(dy) / steps;  // Increment in y
 
     float x = x0;
     float y = y0;
 
     // Draw the line using calculated increments
-    for (int i = 0; i <= steps; i++)
-    {
-        putpixel(round(x), round(y), color); // Plot the pixel with the specified color
-        x += xIncrement;                     // Update x
-        y += yIncrement;                     // Update y
+    for (int i = 0; i <= steps; i++) {
+        if (style == "dashed" && i % 10 < 5) {
+            putpixel(round(x), round(y), color);  // Plot dashed line with the specified color
+        }
+        else if (style == "solid") {
+            putpixel(round(x), round(y), color);  // Plot solid line with the specified color
+        }
+
+        x += xIncrement;  // Update x
+        y += yIncrement;  // Update y
     }
 }
 
-int main()
-{
+// Function to show the color palette
+void showColorPalette() {
+    cout << "Color Palette (0-15):" << endl;
+    for (int i = 0; i < 16; i++) {
+        cout << "Color " << i << ": ";
+        setcolor(i);
+        rectangle(20 + i * 40, 10, 60 + i * 40, 50);
+        floodfill(30 + i * 40, 20, i);
+    }
+    getch();
+}
+
+int main() {
     // Initialize graphics mode
     int gd = DETECT, gm;
     initgraph(&gd, &gm, "");
@@ -40,6 +53,9 @@ int main()
         return 1;
     }
 
+    // Display color palette to the user
+    showColorPalette();
+
     // Get user input for line coordinates
     int x0, y0, x1, y1;
     cout << "Enter the starting coordinates (x0, y0): ";
@@ -47,15 +63,19 @@ int main()
     cout << "Enter the ending coordinates (x1, y1): ";
     cin >> x1 >> y1;
 
-    // Get user input for line color
+    // Get user input for line color and style
     int color;
     cout << "Enter the color code (0-15) for the line: ";
     cin >> color;
 
-    // Draw the line using DDA
-    dda(x0, y0, x1, y1, color);
+    string style;
+    cout << "Enter the line style (solid/dashed): ";
+    cin >> style;
 
-    // Wait for a key press
+    // Draw the line using DDA with chosen style
+    dda(x0, y0, x1, y1, color, style);
+
+    // Wait for a key press and close graphics
     getch();
     closegraph();
 
